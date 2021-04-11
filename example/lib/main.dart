@@ -32,6 +32,7 @@ class _MyAppState extends State<MyApp> {
       print("title:::" + event.title.toString());
       print("text:::" + event.text.toString());
       print("postTime:::" + event.postTime.toString());
+      print("messageList:::" + event.messageList.toString());
     });
     print(event.toString());
   }

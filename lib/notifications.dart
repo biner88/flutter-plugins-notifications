@@ -21,16 +21,27 @@ class NotificationEvent {
   final String packageName;
   final String title;
   final String postTime;
+  final String messageList;
 
-  NotificationEvent({this.packageName, this.title, this.text, this.postTime});
+  NotificationEvent(
+      {this.packageName,
+      this.title,
+      this.text,
+      this.postTime,
+      this.messageList});
 
   factory NotificationEvent.fromMap(Map<dynamic, dynamic> map) {
     String name = map['packageName'] ?? '';
     String text = map['text'] ?? '';
     String title = map['title'] ?? '';
     String postTime = map['post_time'] ?? "0";
+    String messageList = map['message_list'] ?? "[]";
     return NotificationEvent(
-        packageName: name, title: title, text: text, postTime: postTime);
+        packageName: name,
+        title: title,
+        text: text,
+        postTime: postTime,
+        messageList: messageList);
   }
 
   @override
@@ -39,6 +50,7 @@ class NotificationEvent {
         "Package Name: $packageName \n "
         "Title: $title \n"
         "Text: $text \n"
+        "message_list: $messageList \n"
         "PostTime: $postTime \n";
   }
 }

@@ -1,6 +1,5 @@
 package dk.cachet.notifications;
 
-import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +8,8 @@ import android.os.Build.VERSION_CODES;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
-import androidx.annotation.NonNull;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;

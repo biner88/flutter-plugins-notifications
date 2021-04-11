@@ -24,9 +24,13 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 16
     }
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
