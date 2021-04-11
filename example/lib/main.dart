@@ -29,6 +29,9 @@ class _MyAppState extends State<MyApp> {
   void onData(NotificationEvent event) {
     setState(() {
       _log.add(event);
+      print("title:::" + event.title.toString());
+      print("text:::" + event.text.toString());
+      print("postTime:::" + event.postTime.toString());
     });
     print(event.toString());
   }
@@ -61,11 +64,13 @@ class _MyAppState extends State<MyApp> {
                 reverse: true,
                 itemBuilder: (BuildContext context, int idx) {
                   final entry = _log[idx];
+
                   return ListTile(
-                      leading:
-                      Text(entry.timeStamp.toString().substring(0, 19)),
+                      leading: Text(entry.postTime),
+                      title: Text(entry.title),
+                      subtitle: Text(entry.text),
                       trailing:
-                      Text(entry.packageName.toString().split('.').last));
+                          Text(entry.packageName.toString().split('.').last));
                 })),
         floatingActionButton: new FloatingActionButton(
           onPressed: started ? stopListening : startListening,

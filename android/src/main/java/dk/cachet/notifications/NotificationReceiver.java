@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 /**
  * Receives events from @NotificationListener
- * */
+ */
 
 public class NotificationReceiver extends BroadcastReceiver {
 
@@ -26,13 +26,15 @@ public class NotificationReceiver extends BroadcastReceiver {
     /// Unpack intent contents
     String packageName = intent.getStringExtra(NotificationListener.NOTIFICATION_PACKAGE_NAME);
     String title = intent.getStringExtra(NotificationListener.NOTIFICATION_TITLE);
-    String message = intent.getStringExtra(NotificationListener.NOTIFICATION_MESSAGE);
+    String text = intent.getStringExtra(NotificationListener.NOTIFICATION_TEXT);
+    String post_time = intent.getStringExtra(NotificationListener.NOTIFICATION_POST_TIME);
 
     /// Send data back via the Event Sink
     HashMap<String, Object> data = new HashMap<>();
     data.put("packageName", packageName);
     data.put("title", title);
-    data.put("message", message);
+    data.put("text", text);
+    data.put("post_time", post_time);
     eventSink.success(data);
   }
 }

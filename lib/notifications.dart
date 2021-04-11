@@ -17,25 +17,20 @@ class NotificationException implements Exception {
 }
 
 class NotificationEvent {
-  String? packageMessage;
-  String? packageName;
-  String? title;
-  DateTime? timeStamp;
+  final String text;
+  final String packageName;
+  final String title;
+  final String postTime;
 
-  NotificationEvent(
-      {this.packageName, this.title, this.packageMessage, this.timeStamp});
+  NotificationEvent({this.packageName, this.title, this.text, this.postTime});
 
   factory NotificationEvent.fromMap(Map<dynamic, dynamic> map) {
-    DateTime time = DateTime.now();
-    String name = map['packageName'];
-    String message = map['mesage'];
-    String title = map['title'];
-
+    String name = map['packageName'] ?? '';
+    String text = map['text'] ?? '';
+    String title = map['title'] ?? '';
+    String postTime = map['post_time'] ?? "0";
     return NotificationEvent(
-        packageName: name,
-        title: title,
-        packageMessage: message,
-        timeStamp: time);
+        packageName: name, title: title, text: text, postTime: postTime);
   }
 
   @override
@@ -43,20 +38,20 @@ class NotificationEvent {
     return "Notification Event \n"
         "Package Name: $packageName \n "
         "Title: $title \n"
-        "Message: $packageMessage \n"
-        "Timestamp: $timeStamp \n";
+        "Text: $text \n"
+        "PostTime: $postTime \n";
   }
 }
 
 NotificationEvent _notificationEvent(dynamic data) {
-  return new NotificationEvent.fromMap(data);
+  return NotificationEvent.fromMap(data);
 }
 
 class Notifications {
   static const EventChannel _notificationEventChannel =
       EventChannel('notifications');
 
-  late Stream<NotificationEvent> _notificationStream;
+  Stream<NotificationEvent> _notificationStream;
 
   Stream<NotificationEvent> get notificationStream {
     if (Platform.isAndroid) {
