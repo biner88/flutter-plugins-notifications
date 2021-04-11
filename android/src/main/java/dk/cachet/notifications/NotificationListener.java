@@ -9,11 +9,7 @@ import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
-
 import com.google.gson.Gson;
-
-import org.json.JSONArray;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

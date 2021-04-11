@@ -24,11 +24,11 @@ class NotificationEvent {
   final String messageList;
 
   NotificationEvent(
-      {this.packageName,
-      this.title,
-      this.text,
-      this.postTime,
-      this.messageList});
+      {required this.packageName,
+      required this.title,
+      required this.text,
+      required this.postTime,
+      required this.messageList});
 
   factory NotificationEvent.fromMap(Map<dynamic, dynamic> map) {
     String name = map['packageName'] ?? '';
@@ -63,15 +63,15 @@ class Notifications {
   static const EventChannel _notificationEventChannel =
       EventChannel('notifications');
 
-  Stream<NotificationEvent> _notificationStream;
+  late Stream<NotificationEvent> _notificationStream;
 
   Stream<NotificationEvent> get notificationStream {
     if (Platform.isAndroid) {
-      if (_notificationStream == null) {
-        _notificationStream = _notificationEventChannel
-            .receiveBroadcastStream()
-            .map((event) => _notificationEvent(event));
-      }
+      // if (_notificationStream == null) {
+      _notificationStream = _notificationEventChannel
+          .receiveBroadcastStream()
+          .map((event) => _notificationEvent(event));
+      // }
       return _notificationStream;
     }
     throw NotificationException(

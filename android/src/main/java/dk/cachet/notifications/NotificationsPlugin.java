@@ -1,5 +1,6 @@
 package dk.cachet.notifications;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;

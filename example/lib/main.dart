@@ -10,8 +10,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Notifications _notifications;
-  StreamSubscription<NotificationEvent> _subscription;
+  late Notifications _notifications;
+  late StreamSubscription<NotificationEvent> _subscription;
   List<NotificationEvent> _log = [];
   bool started = false;
 
