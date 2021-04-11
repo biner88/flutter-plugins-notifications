@@ -6,6 +6,8 @@ import android.app.Notification;
 import android.content.Intent;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -14,67 +16,92 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import androidx.annotation.RequiresApi;
 
 //import android.util.Log;
 /**
- * Notification listening service. Intercepts notifications if permission is given to do so.
+ * Notification listening service. Intercepts notifications if permission is
+ * given to do so.
  */
 @SuppressLint("OverrideAbstract")
 @RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationListener extends NotificationListenerService {
 
   public static String NOTIFICATION_INTENT = "notification_event";
-  public static String NOTIFICATION_PACKAGE_NAME = "notification_package_name";
-  public static String NOTIFICATION_TEXT = "notification_text";
-  public static String NOTIFICATION_TITLE = "notification_title";
-  public static String NOTIFICATION_POST_TIME = "notification_post_time";
+  // public static String NOTIFICATION_PACKAGE_NAME = "notification_package_name";
+  // public static String NOTIFICATION_TEXT = "notification_text";
+  // public static String NOTIFICATION_TITLE = "notification_title";
+  // public static String NOTIFICATION_POST_TIME = "notification_post_time";
   public static String NOTIFICATION_MESSAGE_LIST = "notification_message_list";
+
   private static final String TAG = "bh";
 
-//  @RequiresApi(api = VERSION_CODES.KITKAT)
+  private int oldMessageCount = 0;
+
+  // @RequiresApi(api = VERSION_CODES.KITKAT)
   @TargetApi(VERSION_CODES.KITKAT)
   @Override
   public void onNotificationPosted(StatusBarNotification sbn) {
-    // super.onNotificationPosted(sbn);
+    super.onNotificationPosted(sbn);
     Bundle extras = sbn.getNotification().extras;
     Intent intent = new Intent(NOTIFICATION_INTENT);
+    if (oldMessageCount == 0) {
+      onListenerConnected();
+    }
+   
 
-    ArrayList<Map<String,Object>> msglist=new ArrayList<Map<String, Object>> ();
+    Log.i("onListenerConnected", String.valueOf(oldMessageCount));
 
     if (extras != null) {
       try {
         String getPostTime = String.valueOf(sbn.getPostTime());
-        // boolean isAppGroup = sbn.isAppGroup();
-        // boolean isGroup = sbn.isGroup();
-        // boolean isOngoing = sbn.isOngoing();
-        String messageList ="[]";
-        // Log.v(TAG, "getPostTime:" + getPostTime);
-        // Log.v(TAG, "isAppGroup:" + isAppGroup);
-        // Log.v(TAG, "isGroup:" + isGroup);
-        //包名
+        String messageList = "[]";
         String packageName = sbn.getPackageName();
-        // 获取通知标题
         String title = extras.getString(Notification.EXTRA_TITLE, "");
-        // 获取通知内容
         String text = extras.getString(Notification.EXTRA_TEXT, "");
-        // CharSequence text = extras.getCharSequence(Notification.EXTRA_TEXT);
-        intent.putExtra(NOTIFICATION_PACKAGE_NAME, packageName);
-        intent.putExtra(NOTIFICATION_TITLE, title);
-        intent.putExtra(NOTIFICATION_TEXT, text);
-        intent.putExtra(NOTIFICATION_POST_TIME, getPostTime);
-        // Log.v(TAG, "log:" + extras.toString());
+        ArrayList<Map<String, Object>> _messageList = new ArrayList<Map<String, Object>>();
+        HashMap<String, Object> mapGroup = new HashMap<String, Object>();
+        mapGroup.put("title", title);
+        mapGroup.put("text", text);
+        mapGroup.put("packageName", packageName);
+        mapGroup.put("postTime", getPostTime);
+        _messageList.add(mapGroup);
 
-        if (getActiveNotifications().length>0) {
-            Bundle extrasGroup;
-            String titleGroup;
-            String textGroup;
-            String packageNameGroup;
-            String postTimeGroup;
+        Gson gson = new Gson();
+        messageList = "["+gson.toJson(mapGroup)+"]";
+        intent.putExtra(NOTIFICATION_MESSAGE_LIST, messageList);
+        sendBroadcast(intent);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
 
-          for(StatusBarNotification statusBarNotification : getActiveNotifications()) {
+  }
+
+  @Override
+  public void onListenerConnected() {
+    // super.onListenerConnected();
+    oldMessageCount=getActiveNotifications().length;
+    new Handler().postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        Intent intent = new Intent(NOTIFICATION_INTENT);
+        String messageList = "[]";
+        
+        ArrayList<Map<String, Object>> _messageLst = new ArrayList<Map<String,
+        Object>>();
+        if (oldMessageCount > 0) {
+          Bundle extrasGroup;
+          String titleGroup;
+          String textGroup;
+          String packageNameGroup;
+          String postTimeGroup;
+
+          for (StatusBarNotification statusBarNotification : getActiveNotifications())
+          {
             extrasGroup = statusBarNotification.getNotification().extras;
-            if (extrasGroup!=null) {
+            if (extrasGroup != null) {
               titleGroup = extrasGroup.getString(Notification.EXTRA_TITLE, "");
               textGroup = extrasGroup.getString(Notification.EXTRA_TEXT, "");
               packageNameGroup = statusBarNotification.getPackageName();
@@ -82,42 +109,44 @@ public class NotificationListener extends NotificationListenerService {
 
               HashMap<String, Object> mapGroup = new HashMap<String, Object>();
 
-              mapGroup.put("title",titleGroup);
-              mapGroup.put("text",textGroup);
-              mapGroup.put("packageName",packageNameGroup);
-              mapGroup.put("postTime",postTimeGroup);
+              mapGroup.put("title", titleGroup);
+              mapGroup.put("text", textGroup);
+              mapGroup.put("packageName", packageNameGroup);
+              mapGroup.put("postTime", postTimeGroup);
 
-              msglist.add(mapGroup);
-             
+              _messageLst.add(mapGroup);
+
             }
           }
-
-          Log.v(TAG, "msglist:" + msglist.toString());
           Gson gson = new Gson();
-          messageList = gson.toJson(msglist); //JSONArray.fromObject(msglist).toString();
-          
+          messageList = gson.toJson(_messageLst);
         }
-
-
-
         intent.putExtra(NOTIFICATION_MESSAGE_LIST, messageList);
-
         sendBroadcast(intent);
-      } catch (Exception e) {
-        e.printStackTrace() ; 
+        // Log.v(TAG, "messageList:" + messageList);
+
       }
-    }
-   
+    },1000);
   }
+
+  @Override
+  public void onCreate() {
+    Log.i("onCreate", "Notification onCreate ");
+    // if (oldMessageCount==0) {
+    // onListenerConnected();
+    // }
+  }
+
   @Override
   public void onNotificationRemoved(StatusBarNotification sbn) {
-      // Bundle extras = sbn.getNotification().extras;
-      // // 获取接收消息APP的包名
-      // String notificationPkg = sbn.getPackageName();
-      // // 获取接收消息的抬头
-      // String notificationTitle = extras.getString(Notification.EXTRA_TITLE);
-      // // 获取接收消息的内容
-      // String notificationText = extras.getString(Notification.EXTRA_TEXT);
-      // Log.i("XSL_Test", "Notification removed " + notificationTitle + " & " + notificationText);
+    // Bundle extras = sbn.getNotification().extras;
+    // // 获取接收消息APP的包名
+    // String notificationPkg = sbn.getPackageName();
+    // // 获取接收消息的抬头
+    // String notificationTitle = extras.getString(Notification.EXTRA_TITLE);
+    // // 获取接收消息的内容
+    // String notificationText = extras.getString(Notification.EXTRA_TEXT);
+    // Log.i("XSL_Test", "Notification removed " + notificationTitle + " & " +
+    // notificationText);
   }
 }

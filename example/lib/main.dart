@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:notifications/notifications.dart';
+
+import 'messageModel.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,13 +16,21 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late Notifications _notifications;
   late StreamSubscription<NotificationEvent> _subscription;
-  List<NotificationEvent> _log = [];
+  // List<NotificationEvent> _log = [];
   bool started = false;
+
+  List<MessageModel> messageList = [];
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -27,14 +39,27 @@ class _MyAppState extends State<MyApp> {
   }
 
   void onData(NotificationEvent event) {
-    setState(() {
-      _log.add(event);
-      print("title:::" + event.title.toString());
-      print("text:::" + event.text.toString());
-      print("postTime:::" + event.postTime.toString());
-      print("messageList:::" + event.messageList.toString());
-    });
-    print(event.toString());
+    List<MessageModel> _ls = [];
+
+    var data = jsonDecode(event.messageList);
+    for (var item in data) {
+      MessageModel val = MessageModel.fromJson(item);
+      if (val.title != '') {
+        _ls.add(val);
+      }
+    }
+    if (_ls.length > 0) {
+      if (messageList.length == 0) {
+        messageList = _ls;
+      } else {
+        if (_ls.length == 1) {
+          messageList.insertAll(0, _ls);
+        } else if (_ls.length > 1) {
+          messageList.addAll(_ls);
+        }
+      }
+      setState(() {});
+    }
   }
 
   void startListening() {
@@ -61,15 +86,15 @@ class _MyAppState extends State<MyApp> {
         ),
         body: new Center(
             child: new ListView.builder(
-                itemCount: _log.length,
+                itemCount: messageList.length,
                 reverse: true,
-                itemBuilder: (BuildContext context, int idx) {
-                  final entry = _log[idx];
+                itemBuilder: (BuildContext context, int index) {
+                  final entry = messageList[index];
 
                   return ListTile(
-                      leading: Text(entry.postTime),
+                      // leading: Text(entry.postTime),
                       title: Text(entry.title),
-                      subtitle: Text(entry.text),
+                      subtitle: Text(entry.postTime + ':' + entry.text),
                       trailing:
                           Text(entry.packageName.toString().split('.').last));
                 })),

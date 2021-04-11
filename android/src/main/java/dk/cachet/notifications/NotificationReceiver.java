@@ -26,18 +26,18 @@ public class NotificationReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     /// Unpack intent contents
-    String packageName = intent.getStringExtra(NotificationListener.NOTIFICATION_PACKAGE_NAME);
-    String title = intent.getStringExtra(NotificationListener.NOTIFICATION_TITLE);
-    String content = intent.getStringExtra(NotificationListener.NOTIFICATION_TEXT);
-    String post_time = intent.getStringExtra(NotificationListener.NOTIFICATION_POST_TIME);
+//    String packageName = intent.getStringExtra(NotificationListener.NOTIFICATION_PACKAGE_NAME);
+//    String title = intent.getStringExtra(NotificationListener.NOTIFICATION_TITLE);
+//    String content = intent.getStringExtra(NotificationListener.NOTIFICATION_TEXT);
+//    String post_time = intent.getStringExtra(NotificationListener.NOTIFICATION_POST_TIME);
     String message_list = intent.getStringExtra(NotificationListener.NOTIFICATION_MESSAGE_LIST);
 
     /// Send data back via the Event Sink
     HashMap<String, Object> data = new HashMap<>();
-    data.put("packageName", packageName);
-    data.put("title", title);
-    data.put("text", content);
-    data.put("post_time", post_time);
+//    data.put("packageName", packageName);
+//    data.put("title", title);
+//    data.put("text", content);
+//    data.put("post_time", post_time);
     data.put("message_list", message_list);
     eventSink.success(data);
   }
