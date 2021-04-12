@@ -10,15 +10,24 @@ import android.os.Handler;
 import android.os.Message;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.annotation.RequiresApi;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
 
-//import android.util.Log;
+import android.content.pm.PackageManager;
+import android.content.pm.ApplicationInfo;
+
+import android.util.Log;
 /**
  * Notification listening service. Intercepts notifications if permission is
  * given to do so.
@@ -56,36 +65,36 @@ public class NotificationListener extends NotificationListenerService {
       sendBroadcast(intent);
     }
   }
-public void getMessageList(){
-  oldMessageCount = getActiveNotifications().length;
-  Intent intent = new Intent(NOTIFICATION_INTENT);
-  ArrayList<HashMap<String, Object>> _messageList = new ArrayList<HashMap<String, Object>>();
-  if (oldMessageCount > 0) {
-    for (StatusBarNotification statusBarNotification : getActiveNotifications()) {
-      HashMap<String, Object> m = mapGroup(statusBarNotification);
-      if (!m.isEmpty()) {
-        _messageList.add(m);
-      }
-    }
-    Gson gson = new Gson();
-    intent.putExtra(NOTIFICATION_MESSAGE_LIST, gson.toJson(_messageList));
-    sendBroadcast(intent);
-  }
 
-  Log.i(TAG, "onListenerConnected:" + oldMessageCount);
-}
+  public void getMessageList() {
+    oldMessageCount = getActiveNotifications().length;
+    Intent intent = new Intent(NOTIFICATION_INTENT);
+    ArrayList<HashMap<String, Object>> _messageList = new ArrayList<HashMap<String, Object>>();
+    if (oldMessageCount > 0) {
+      for (StatusBarNotification statusBarNotification : getActiveNotifications()) {
+        HashMap<String, Object> m = mapGroup(statusBarNotification);
+        if (!m.isEmpty()) {
+          _messageList.add(m);
+        }
+      }
+      Gson gson = new Gson();
+      intent.putExtra(NOTIFICATION_MESSAGE_LIST, gson.toJson(_messageList));
+      sendBroadcast(intent);
+    }
+
+    Log.i(TAG, "onListenerConnected:" + oldMessageCount);
+  }
 
   @Override
   public void onListenerConnected() {
     super.onListenerConnected();
-   
-    // new Handler().postDelayed(new Runnable() {
-    //   @Override
-    //   public void run() {
-    //     getMessageList();
 
-    //   }
-    // }, 1000);
+    new Handler().postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        getMessageList();
+      }
+    }, 2000);
     getMessageList();
     Log.i(TAG, "onListenerConnected");
   }
@@ -104,31 +113,45 @@ public void getMessageList(){
     Log.i(TAG, "onNotificationRemoved");
   }
 
+  private synchronized String getAppName(String packgename) {
+    PackageManager pm = getPackageManager();
+    try {
+      ApplicationInfo appInfo = pm.getApplicationInfo(packgename, 0);
+      //获取应用名
+      String appName =appInfo.loadLabel(pm).toString();
+      return appName;
+    } catch (PackageManager.NameNotFoundException e) {
+      e.printStackTrace();
+    }
+    return "";
+  }
   public HashMap<String, Object> mapGroup(StatusBarNotification statusBarNotification) {
     HashMap<String, Object> mapGroup = new HashMap<String, Object>();
     Bundle extrasGroup;
-    CharSequence titleGroup;
-    CharSequence textGroup;
+    String titleGroup;
+    String textGroup;
     String packageNameGroup;
     String postTimeGroup;
-    String getIdGroup;
-    
+    String idGroup;
+    String appName;
+
     extrasGroup = statusBarNotification.getNotification().extras;
     if (extrasGroup != null) {
       try {
-        titleGroup = extrasGroup.getCharSequence(Notification.EXTRA_TITLE);
-        titleGroup = titleGroup==null?"":titleGroup;
-        textGroup = extrasGroup.getCharSequence(Notification.EXTRA_TEXT);
-        textGroup = textGroup==null?"":textGroup;
+        CharSequence _titleGroup = extrasGroup.getCharSequence(Notification.EXTRA_TITLE);
+        titleGroup = _titleGroup == null ? "" : _titleGroup.toString();
+        CharSequence _textGroup = extrasGroup.getCharSequence(Notification.EXTRA_TEXT);
+        textGroup = _textGroup == null ? "" : _textGroup.toString();
         packageNameGroup = statusBarNotification.getPackageName();
         postTimeGroup = String.valueOf(statusBarNotification.getPostTime());
-        getIdGroup = String.valueOf(statusBarNotification.getId());
-
-        mapGroup.put("title", titleGroup.toString());
-        mapGroup.put("text", textGroup.toString());
+        idGroup = String.valueOf(statusBarNotification.getId());
+        appName = getAppName(packageNameGroup);
+        mapGroup.put("title", titleGroup);
+        mapGroup.put("text", textGroup);
         mapGroup.put("packageName", packageNameGroup);
         mapGroup.put("postTime", postTimeGroup);
-        mapGroup.put("id", getIdGroup);
+        mapGroup.put("id", idGroup);
+        mapGroup.put("appName", appName);
 
       } catch (Exception e) {
         e.printStackTrace();

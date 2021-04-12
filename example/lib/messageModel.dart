@@ -4,6 +4,7 @@ class MessageModel {
   late String text;
   late String packageName;
   late String postTime;
+  late String appName;
 
   MessageModel({
     required this.id,
@@ -11,6 +12,7 @@ class MessageModel {
     required this.text,
     required this.packageName,
     required this.postTime,
+    required this.appName,
   });
 
   MessageModel.fromJson(Map<String, dynamic> json) {
@@ -19,6 +21,7 @@ class MessageModel {
     text = json['text'] ?? '';
     packageName = json['packageName'] ?? '';
     postTime = json['postTime'] ?? '';
+    appName = json['appName'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
@@ -28,6 +31,7 @@ class MessageModel {
     data['text'] = this.text;
     data['packageName'] = this.packageName;
     data['postTime'] = this.postTime;
+    data['appName'] = this.appName;
     return data;
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:notifications/notifications.dart';
-
+import 'dart:convert';
 import 'messageModel.dart';
 
 void main() => runApp(MyApp());
@@ -41,8 +41,10 @@ class _MyAppState extends State<MyApp> {
 
     var data = event.messageList;
     for (var item in data) {
+      print(item);
       MessageModel val = MessageModel.fromJson(item);
       if (val.title != '') {
+        //查询ID
         _ls.add(val);
       }
     }
@@ -90,12 +92,13 @@ class _MyAppState extends State<MyApp> {
                   final entry = messageList[index];
 
                   return ListTile(
-                      // leading: Text(entry.postTime),
-                      title: Text(entry.title),
-                      subtitle: Text(
-                          entry.postTime + ':' + entry.text + ':' + entry.id),
-                      trailing:
-                          Text(entry.packageName.toString().split('.').last));
+                    title: Text(entry.title),
+                    subtitle: Text(
+                        entry.postTime + ':' + entry.text + ':' + entry.id),
+                    trailing: Text(entry.appName),
+                    // trailing:
+                    //     Text(entry.packageName.toString().split('.').last)
+                  );
                 })),
         floatingActionButton: new FloatingActionButton(
           onPressed: started ? stopListening : startListening,
