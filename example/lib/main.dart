@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> {
   void onData(NotificationEvent event) {
     List<MessageModel> _ls = [];
 
-    var data = jsonDecode(event.messageList);
+    var data = event.messageList;
     for (var item in data) {
       MessageModel val = MessageModel.fromJson(item);
       if (val.title != '') {

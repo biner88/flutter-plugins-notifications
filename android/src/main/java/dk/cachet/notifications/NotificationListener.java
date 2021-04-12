@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import androidx.annotation.RequiresApi;
 
 //import android.util.Log;
@@ -29,10 +28,6 @@ import androidx.annotation.RequiresApi;
 public class NotificationListener extends NotificationListenerService {
 
   public static String NOTIFICATION_INTENT = "notification_event";
-  // public static String NOTIFICATION_PACKAGE_NAME = "notification_package_name";
-  // public static String NOTIFICATION_TEXT = "notification_text";
-  // public static String NOTIFICATION_TITLE = "notification_title";
-  // public static String NOTIFICATION_POST_TIME = "notification_post_time";
   public static String NOTIFICATION_MESSAGE_LIST = "notification_message_list";
 
   private static final String TAG = "Notification";
@@ -49,47 +44,28 @@ public class NotificationListener extends NotificationListenerService {
     if (oldMessageCount == 0) {
       onListenerConnected();
     }
-   
+
     Log.i(TAG, "onNotificationPosted ");
 
-    if (extras != null) {
-      try {
-        String getPostTime = String.valueOf(sbn.getPostTime());
-        String messageList = "[]";
-        String packageName = sbn.getPackageName();
-        CharSequence title = extras.getCharSequence(Notification.EXTRA_TITLE);
-        CharSequence text = extras.getCharSequence(Notification.EXTRA_TEXT);
-        ArrayList<Map<String, Object>> _messageList = new ArrayList<Map<String, Object>>();
-        HashMap<String, Object> mapGroup = new HashMap<String, Object>();
-        mapGroup.put("title", title.toString());
-        mapGroup.put("text", text.toString());
-        mapGroup.put("packageName", packageName);
-        mapGroup.put("postTime", getPostTime);
-        _messageList.add(mapGroup);
-
-        Gson gson = new Gson();
-        messageList = "["+gson.toJson(mapGroup)+"]";
-        intent.putExtra(NOTIFICATION_MESSAGE_LIST, messageList);
-        sendBroadcast(intent);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+    ArrayList<HashMap<String, Object>> _messageList = new ArrayList<HashMap<String, Object>>();
+    HashMap<String, Object> m = mapGroup(sbn);
+    if (!m.isEmpty()) {
+      _messageList.add(m);
+      Gson gson = new Gson();
+      intent.putExtra(NOTIFICATION_MESSAGE_LIST, gson.toJson(_messageList));
+      sendBroadcast(intent);
     }
-
   }
 
   @Override
   public void onListenerConnected() {
     // super.onListenerConnected();
-    oldMessageCount=getActiveNotifications().length;
+    oldMessageCount = getActiveNotifications().length;
     new Handler().postDelayed(new Runnable() {
       @Override
       public void run() {
         Intent intent = new Intent(NOTIFICATION_INTENT);
-        String messageList = "[]";
-        
-        ArrayList<Map<String, Object>> _messageLst = new ArrayList<Map<String,
-        Object>>();
+        ArrayList<HashMap<String, Object>> _messageList = new ArrayList<HashMap<String, Object>>();
         if (oldMessageCount > 0) {
           Bundle extrasGroup;
           CharSequence titleGroup;
@@ -97,59 +73,61 @@ public class NotificationListener extends NotificationListenerService {
           String packageNameGroup;
           String postTimeGroup;
 
-          for (StatusBarNotification statusBarNotification : getActiveNotifications())
-          {
-            extrasGroup = statusBarNotification.getNotification().extras;
-            if (extrasGroup != null) {
-              try {
-                titleGroup = extrasGroup.getCharSequence(Notification.EXTRA_TITLE);
-                textGroup = extrasGroup.getCharSequence(Notification.EXTRA_TEXT);
-                packageNameGroup = statusBarNotification.getPackageName();
-                postTimeGroup = String.valueOf(statusBarNotification.getPostTime());
+          for (StatusBarNotification statusBarNotification : getActiveNotifications()) {
 
-                HashMap<String, Object> mapGroup = new HashMap<String, Object>();
-
-                mapGroup.put("title", titleGroup.toString());
-                mapGroup.put("text", textGroup.toString());
-                mapGroup.put("packageName", packageNameGroup);
-                mapGroup.put("postTime", postTimeGroup);
-
-                _messageLst.add(mapGroup);
-              } catch (Exception e) {
-              }
+            HashMap<String, Object> m = mapGroup(statusBarNotification);
+            if (!m.isEmpty()) {
+              _messageList.add(m);
             }
           }
           Gson gson = new Gson();
-          messageList = gson.toJson(_messageLst);
+          intent.putExtra(NOTIFICATION_MESSAGE_LIST, gson.toJson(_messageList));
+          sendBroadcast(intent);
         }
-        intent.putExtra(NOTIFICATION_MESSAGE_LIST, messageList);
-        sendBroadcast(intent);
-        Log.i(TAG, "onListenerConnected:"+oldMessageCount);
+
+        Log.i(TAG, "onListenerConnected:" + oldMessageCount);
 
       }
-    },1000);
+    }, 1000);
     Log.i(TAG, "onListenerConnected");
   }
 
   @Override
   public void onCreate() {
     Log.i(TAG, "onCreate");
-    // if (oldMessageCount==0) {
-    // onListenerConnected();
-    // }
   }
 
   @Override
   public void onNotificationRemoved(StatusBarNotification sbn) {
     Log.i(TAG, "onNotificationRemoved");
-    // Bundle extras = sbn.getNotification().extras;
-    // // 获取接收消息APP的包名
-    // String notificationPkg = sbn.getPackageName();
-    // // 获取接收消息的抬头
-    // String notificationTitle = extras.getString(Notification.EXTRA_TITLE);
-    // // 获取接收消息的内容
-    // String notificationText = extras.getString(Notification.EXTRA_TEXT);
-    // Log.i("XSL_Test", "Notification removed " + notificationTitle + " & " +
-    // notificationText);
+  }
+
+  public HashMap<String, Object> mapGroup(StatusBarNotification statusBarNotification) {
+    HashMap<String, Object> mapGroup = new HashMap<String, Object>();
+    Bundle extrasGroup;
+    CharSequence titleGroup;
+    CharSequence textGroup;
+    String packageNameGroup;
+    String postTimeGroup;
+    extrasGroup = statusBarNotification.getNotification().extras;
+    if (extrasGroup != null) {
+      try {
+        titleGroup = extrasGroup.getCharSequence(Notification.EXTRA_TITLE);
+        titleGroup = titleGroup==null?"":titleGroup;
+        textGroup = extrasGroup.getCharSequence(Notification.EXTRA_TEXT);
+        textGroup = textGroup==null?"":textGroup;
+        packageNameGroup = statusBarNotification.getPackageName();
+        postTimeGroup = String.valueOf(statusBarNotification.getPostTime());
+
+        mapGroup.put("title", titleGroup.toString());
+        mapGroup.put("text", textGroup.toString());
+        mapGroup.put("packageName", packageNameGroup);
+        mapGroup.put("postTime", postTimeGroup);
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return mapGroup;
   }
 }

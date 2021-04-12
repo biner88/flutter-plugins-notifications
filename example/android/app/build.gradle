@@ -43,6 +43,11 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    // gradle.projectsEvaluated {
+    //     tasks.withType(JavaCompile) {
+    //         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    //     }
+    // }
 }
 
 flutter {
