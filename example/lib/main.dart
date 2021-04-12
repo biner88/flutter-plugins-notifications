@@ -94,7 +94,8 @@ class _MyAppState extends State<MyApp> {
                   return ListTile(
                       // leading: Text(entry.postTime),
                       title: Text(entry.title),
-                      subtitle: Text(entry.postTime + ':' + entry.text),
+                      subtitle: Text(
+                          entry.postTime + ':' + entry.text + ':' + entry.id),
                       trailing:
                           Text(entry.packageName.toString().split('.').last));
                 })),

@@ -64,15 +64,7 @@ public class NotificationsPlugin implements FlutterPlugin, EventChannel.StreamHa
     /// Get context
     context = flutterPluginBinding.getApplicationContext();
   }
-  // public static void registerWith(@NonNull FlutterPluginBinding flutterPluginBinding) {
-  //   /// Init event channel
-  //   BinaryMessenger binaryMessenger = flutterPluginBinding.getBinaryMessenger();
-  //   eventChannel = new EventChannel(binaryMessenger, "notifications");
-  //   eventChannel.setStreamHandler(this);
 
-  //   /// Get context
-  //   context = flutterPluginBinding.getApplicationContext();
-  // }
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     eventChannel.setStreamHandler(null);

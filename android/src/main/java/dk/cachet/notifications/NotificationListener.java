@@ -24,7 +24,7 @@ import androidx.annotation.RequiresApi;
  * given to do so.
  */
 @SuppressLint("OverrideAbstract")
-@RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR2)
+// @RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationListener extends NotificationListenerService {
 
   public static String NOTIFICATION_INTENT = "notification_event";
@@ -35,14 +35,14 @@ public class NotificationListener extends NotificationListenerService {
   private int oldMessageCount = 0;
 
   // @RequiresApi(api = VERSION_CODES.KITKAT)
-  @TargetApi(VERSION_CODES.KITKAT)
+  // @TargetApi(VERSION_CODES.KITKAT)
   @Override
   public void onNotificationPosted(StatusBarNotification sbn) {
     super.onNotificationPosted(sbn);
     Bundle extras = sbn.getNotification().extras;
     Intent intent = new Intent(NOTIFICATION_INTENT);
     if (oldMessageCount == 0) {
-      onListenerConnected();
+      getMessageList();
     }
 
     Log.i(TAG, "onNotificationPosted ");
@@ -56,45 +56,47 @@ public class NotificationListener extends NotificationListenerService {
       sendBroadcast(intent);
     }
   }
+public void getMessageList(){
+  oldMessageCount = getActiveNotifications().length;
+  Intent intent = new Intent(NOTIFICATION_INTENT);
+  ArrayList<HashMap<String, Object>> _messageList = new ArrayList<HashMap<String, Object>>();
+  if (oldMessageCount > 0) {
+    for (StatusBarNotification statusBarNotification : getActiveNotifications()) {
+      HashMap<String, Object> m = mapGroup(statusBarNotification);
+      if (!m.isEmpty()) {
+        _messageList.add(m);
+      }
+    }
+    Gson gson = new Gson();
+    intent.putExtra(NOTIFICATION_MESSAGE_LIST, gson.toJson(_messageList));
+    sendBroadcast(intent);
+  }
+
+  Log.i(TAG, "onListenerConnected:" + oldMessageCount);
+}
 
   @Override
   public void onListenerConnected() {
-    // super.onListenerConnected();
-    oldMessageCount = getActiveNotifications().length;
-    new Handler().postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        Intent intent = new Intent(NOTIFICATION_INTENT);
-        ArrayList<HashMap<String, Object>> _messageList = new ArrayList<HashMap<String, Object>>();
-        if (oldMessageCount > 0) {
-          Bundle extrasGroup;
-          CharSequence titleGroup;
-          CharSequence textGroup;
-          String packageNameGroup;
-          String postTimeGroup;
+    super.onListenerConnected();
+   
+    // new Handler().postDelayed(new Runnable() {
+    //   @Override
+    //   public void run() {
+    //     getMessageList();
 
-          for (StatusBarNotification statusBarNotification : getActiveNotifications()) {
-
-            HashMap<String, Object> m = mapGroup(statusBarNotification);
-            if (!m.isEmpty()) {
-              _messageList.add(m);
-            }
-          }
-          Gson gson = new Gson();
-          intent.putExtra(NOTIFICATION_MESSAGE_LIST, gson.toJson(_messageList));
-          sendBroadcast(intent);
-        }
-
-        Log.i(TAG, "onListenerConnected:" + oldMessageCount);
-
-      }
-    }, 1000);
+    //   }
+    // }, 1000);
+    getMessageList();
     Log.i(TAG, "onListenerConnected");
   }
 
   @Override
   public void onCreate() {
+    super.onCreate();
     Log.i(TAG, "onCreate");
+    if (oldMessageCount == 0) {
+      getMessageList();
+    }
   }
 
   @Override
@@ -109,6 +111,8 @@ public class NotificationListener extends NotificationListenerService {
     CharSequence textGroup;
     String packageNameGroup;
     String postTimeGroup;
+    String getIdGroup;
+    
     extrasGroup = statusBarNotification.getNotification().extras;
     if (extrasGroup != null) {
       try {
@@ -118,11 +122,13 @@ public class NotificationListener extends NotificationListenerService {
         textGroup = textGroup==null?"":textGroup;
         packageNameGroup = statusBarNotification.getPackageName();
         postTimeGroup = String.valueOf(statusBarNotification.getPostTime());
+        getIdGroup = String.valueOf(statusBarNotification.getId());
 
         mapGroup.put("title", titleGroup.toString());
         mapGroup.put("text", textGroup.toString());
         mapGroup.put("packageName", packageNameGroup);
         mapGroup.put("postTime", postTimeGroup);
+        mapGroup.put("id", getIdGroup);
 
       } catch (Exception e) {
         e.printStackTrace();
