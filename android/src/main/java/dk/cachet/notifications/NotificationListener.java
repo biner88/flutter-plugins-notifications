@@ -35,7 +35,7 @@ public class NotificationListener extends NotificationListenerService {
   // public static String NOTIFICATION_POST_TIME = "notification_post_time";
   public static String NOTIFICATION_MESSAGE_LIST = "notification_message_list";
 
-  private static final String TAG = "bh";
+  private static final String TAG = "Notification";
 
   private int oldMessageCount = 0;
 
@@ -50,20 +50,19 @@ public class NotificationListener extends NotificationListenerService {
       onListenerConnected();
     }
    
-
-    Log.i("onListenerConnected", String.valueOf(oldMessageCount));
+    Log.i(TAG, "onNotificationPosted ");
 
     if (extras != null) {
       try {
         String getPostTime = String.valueOf(sbn.getPostTime());
         String messageList = "[]";
         String packageName = sbn.getPackageName();
-        String title = extras.getString(Notification.EXTRA_TITLE, "");
-        String text = extras.getString(Notification.EXTRA_TEXT, "");
+        CharSequence title = extras.getCharSequence(Notification.EXTRA_TITLE);
+        CharSequence text = extras.getCharSequence(Notification.EXTRA_TEXT);
         ArrayList<Map<String, Object>> _messageList = new ArrayList<Map<String, Object>>();
         HashMap<String, Object> mapGroup = new HashMap<String, Object>();
-        mapGroup.put("title", title);
-        mapGroup.put("text", text);
+        mapGroup.put("title", title.toString());
+        mapGroup.put("text", text.toString());
         mapGroup.put("packageName", packageName);
         mapGroup.put("postTime", getPostTime);
         _messageList.add(mapGroup);
@@ -93,8 +92,8 @@ public class NotificationListener extends NotificationListenerService {
         Object>>();
         if (oldMessageCount > 0) {
           Bundle extrasGroup;
-          String titleGroup;
-          String textGroup;
+          CharSequence titleGroup;
+          CharSequence textGroup;
           String packageNameGroup;
           String postTimeGroup;
 
@@ -102,20 +101,22 @@ public class NotificationListener extends NotificationListenerService {
           {
             extrasGroup = statusBarNotification.getNotification().extras;
             if (extrasGroup != null) {
-              titleGroup = extrasGroup.getString(Notification.EXTRA_TITLE, "");
-              textGroup = extrasGroup.getString(Notification.EXTRA_TEXT, "");
-              packageNameGroup = statusBarNotification.getPackageName();
-              postTimeGroup = String.valueOf(statusBarNotification.getPostTime());
+              try {
+                titleGroup = extrasGroup.getCharSequence(Notification.EXTRA_TITLE);
+                textGroup = extrasGroup.getCharSequence(Notification.EXTRA_TEXT);
+                packageNameGroup = statusBarNotification.getPackageName();
+                postTimeGroup = String.valueOf(statusBarNotification.getPostTime());
 
-              HashMap<String, Object> mapGroup = new HashMap<String, Object>();
+                HashMap<String, Object> mapGroup = new HashMap<String, Object>();
 
-              mapGroup.put("title", titleGroup);
-              mapGroup.put("text", textGroup);
-              mapGroup.put("packageName", packageNameGroup);
-              mapGroup.put("postTime", postTimeGroup);
+                mapGroup.put("title", titleGroup.toString());
+                mapGroup.put("text", textGroup.toString());
+                mapGroup.put("packageName", packageNameGroup);
+                mapGroup.put("postTime", postTimeGroup);
 
-              _messageLst.add(mapGroup);
-
+                _messageLst.add(mapGroup);
+              } catch (Exception e) {
+              }
             }
           }
           Gson gson = new Gson();
@@ -123,15 +124,16 @@ public class NotificationListener extends NotificationListenerService {
         }
         intent.putExtra(NOTIFICATION_MESSAGE_LIST, messageList);
         sendBroadcast(intent);
-        // Log.v(TAG, "messageList:" + messageList);
+        Log.i(TAG, "onListenerConnected:"+oldMessageCount);
 
       }
     },1000);
+    Log.i(TAG, "onListenerConnected");
   }
 
   @Override
   public void onCreate() {
-    Log.i("onCreate", "Notification onCreate ");
+    Log.i(TAG, "onCreate");
     // if (oldMessageCount==0) {
     // onListenerConnected();
     // }
@@ -139,6 +141,7 @@ public class NotificationListener extends NotificationListenerService {
 
   @Override
   public void onNotificationRemoved(StatusBarNotification sbn) {
+    Log.i(TAG, "onNotificationRemoved");
     // Bundle extras = sbn.getNotification().extras;
     // // 获取接收消息APP的包名
     // String notificationPkg = sbn.getPackageName();
