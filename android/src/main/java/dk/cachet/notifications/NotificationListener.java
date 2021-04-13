@@ -67,10 +67,10 @@ public class NotificationListener extends NotificationListenerService {
   }
 
   public void getMessageList() {
-    oldMessageCount = getActiveNotifications().length;
+   int _oldMessageCount = getActiveNotifications().length;
     Intent intent = new Intent(NOTIFICATION_INTENT);
     ArrayList<HashMap<String, Object>> _messageList = new ArrayList<HashMap<String, Object>>();
-    if (oldMessageCount > 0) {
+    if (_oldMessageCount > 0) {
       for (StatusBarNotification statusBarNotification : getActiveNotifications()) {
         HashMap<String, Object> m = mapGroup(statusBarNotification);
         if (!m.isEmpty()) {
@@ -80,9 +80,11 @@ public class NotificationListener extends NotificationListenerService {
       Gson gson = new Gson();
       intent.putExtra(NOTIFICATION_MESSAGE_LIST, gson.toJson(_messageList));
       sendBroadcast(intent);
+      oldMessageCount = _oldMessageCount;
+      Log.i(TAG, "onListenerConnected:" + oldMessageCount);
     }
 
-    Log.i(TAG, "onListenerConnected:" + oldMessageCount);
+    
   }
   @Override
   public void onListenerConnected() {
@@ -94,26 +96,13 @@ public class NotificationListener extends NotificationListenerService {
         getMessageList();
       }
     }, 2000);
-    getMessageList();
     Log.i(TAG, "onListenerConnected");
   }
 
   @Override
   public void onCreate() {
     super.onCreate();
-    // if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-    //   startForeground(1,new Notification());
-    // }
-    // myHandler.postDelayed(new Runnable() {
-    //   @Override
-    //   public void run() {
-    //       stopForeground(true);
-    //   }
-    // }, 1000);
     Log.i(TAG, "onCreate");
-    if (oldMessageCount == 0) {
-      getMessageList();
-    }
   }
 
   @Override
