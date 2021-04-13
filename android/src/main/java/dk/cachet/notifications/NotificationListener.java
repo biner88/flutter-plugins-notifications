@@ -84,7 +84,6 @@ public class NotificationListener extends NotificationListenerService {
 
     Log.i(TAG, "onListenerConnected:" + oldMessageCount);
   }
-
   @Override
   public void onListenerConnected() {
     super.onListenerConnected();
@@ -102,6 +101,15 @@ public class NotificationListener extends NotificationListenerService {
   @Override
   public void onCreate() {
     super.onCreate();
+    // if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+    //   startForeground(1,new Notification());
+    // }
+    // myHandler.postDelayed(new Runnable() {
+    //   @Override
+    //   public void run() {
+    //       stopForeground(true);
+    //   }
+    // }, 1000);
     Log.i(TAG, "onCreate");
     if (oldMessageCount == 0) {
       getMessageList();

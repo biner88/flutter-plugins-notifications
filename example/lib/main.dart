@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:notifications/notifications.dart';
-import 'dart:convert';
 import 'messageModel.dart';
 
 void main() => runApp(MyApp());

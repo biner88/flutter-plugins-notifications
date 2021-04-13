@@ -17,6 +17,8 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
 
+import android.content.pm.PackageManager;
+
 /**
  * NotificationsPlugin
  */
@@ -29,8 +31,7 @@ public class NotificationsPlugin implements FlutterPlugin, EventChannel.StreamHa
   public void requestPermission() {
     /// Sort out permissions for notifications
     if (!permissionGranted()) {
-      Intent permissionScreen = new Intent("android.settings" +
-          ".ACTION_NOTIFICATION_LISTENER_SETTINGS");
+      Intent permissionScreen = new Intent("android.settings" + ".ACTION_NOTIFICATION_LISTENER_SETTINGS");
       permissionScreen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       context.startActivity(permissionScreen);
     }
@@ -38,8 +39,7 @@ public class NotificationsPlugin implements FlutterPlugin, EventChannel.StreamHa
 
   private boolean permissionGranted() {
     String packageName = context.getPackageName();
-    String flat = Settings.Secure.getString(context.getContentResolver(),
-        "enabled_notification_listeners");
+    String flat = Settings.Secure.getString(context.getContentResolver(), "enabled_notification_listeners");
     if (!TextUtils.isEmpty(flat)) {
       String[] names = flat.split(":");
       for (String name : names) {
@@ -85,7 +85,11 @@ public class NotificationsPlugin implements FlutterPlugin, EventChannel.StreamHa
 
       /// Set up listener intent
       Intent listenerIntent = new Intent(context, NotificationListener.class);
+      // if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+      // context.startForegroundService(listenerIntent);
+      // }else{
       context.startService(listenerIntent);
+      // }
       Log.i(TAG, "Started the notification tracking service.");
     } else {
       requestPermission();
