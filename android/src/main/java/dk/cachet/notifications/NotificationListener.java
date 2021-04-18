@@ -4,36 +4,25 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Intent;
-import android.os.Build.VERSION_CODES;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
+
 import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.PixelFormat;
-import android.util.Base64;
-import java.io.ByteArrayOutputStream;
-
-import android.content.pm.PackageManager;
-import android.content.pm.ApplicationInfo;
-
-import android.util.Log;
 /**
  * Notification listening service. Intercepts notifications if permission is
  * given to do so.
  */
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 @SuppressLint("OverrideAbstract")
-// @RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationListener extends NotificationListenerService {
 
   public static String NOTIFICATION_INTENT = "notification_event";
@@ -43,8 +32,7 @@ public class NotificationListener extends NotificationListenerService {
 
   private int oldMessageCount = 0;
 
-  // @RequiresApi(api = VERSION_CODES.KITKAT)
-  // @TargetApi(VERSION_CODES.KITKAT)
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
   @Override
   public void onNotificationPosted(StatusBarNotification sbn) {
     super.onNotificationPosted(sbn);

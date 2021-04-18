@@ -1,6 +1,5 @@
 package dk.cachet.notifications;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -16,8 +15,6 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
-
-import android.content.pm.PackageManager;
 
 /**
  * NotificationsPlugin

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:notifications/notifications.dart';
+import 'package:flutter_plugins_notifications/flutter_plugins_notifications.dart';
 import 'messageModel.dart';
 
 void main() => runApp(MyApp());

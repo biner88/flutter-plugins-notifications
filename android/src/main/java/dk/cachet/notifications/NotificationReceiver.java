@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build.VERSION_CODES;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Map;
 import androidx.annotation.RequiresApi;
 import io.flutter.plugin.common.EventChannel.EventSink;
 
